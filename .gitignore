@@ -1,0 +1,7 @@
+# Rust
+scrapper/target
+/target/
+Cargo.lock
+
+# VSCode
+.vscode/
