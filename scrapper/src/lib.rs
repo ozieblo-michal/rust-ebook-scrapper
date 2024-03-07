@@ -1,14 +1,89 @@
 use pyo3::prelude::*;
 
-/// Formats the sum of two numbers as string.
-#[pyfunction]
-fn sum_as_string(a: usize, b: usize) -> PyResult<String> {
-    Ok((a + b).to_string())
+#[pyclass]
+#[derive(Debug, Clone, PartialEq)]
+enum AttachmentType {
+    Image,
+    Video,
+    Audio,
+    File,
 }
 
-/// A Python module implemented in Rust.
+#[pyclass(module = "scrapper", get_all, set_all)]
+#[derive(Debug, Clone, PartialEq)]
+struct Attachment {
+    path: String,
+    attachment_type: AttachmentType,
+}
+
+#[pymethods]
+impl Attachment {
+    #[new]
+    fn new(path: String, attachment_type: AttachmentType) -> Self {
+        Attachment {
+            path,
+            attachment_type,
+        }
+    }
+    
+    fn __str__(&self) -> PyResult<String> {
+        Ok(format!("Attachment(path={}, attachment_type={:?})", self.path, self.attachment_type))
+    }
+}
+
+#[pyclass(module = "scrapper", get_all, set_all)]
+#[derive(Debug, Clone)]
+struct Email {
+    subject: String,
+    body: String,
+    attachments: Vec<Attachment>,
+}
+
+#[pymethods]
+impl Email {
+    #[new]
+    fn new(subject: String, body: String, attachments: Vec<Attachment>) -> Self {
+        Email {
+            subject,
+            body,
+            attachments,
+        }
+    }
+    
+    fn __str__(&self) -> PyResult<String> {
+        Ok(format!("Email(subject={}, body={}, attachments={:?})", self.subject, self.body, self.attachments))
+    }
+    
+    fn send(&mut self, to: String) -> PyResult<()> {
+        println!("Sending email to: {}", to);
+        println!("Subject: {}", self.subject);
+        println!("Body: {}", self.body);
+        for attachment in &self.attachments {
+            println!("Attachment: {:?}", attachment);
+        }
+        Ok(())
+    }
+    
+}
+
+macro_rules! add_classes {
+    ($module:ident, $($class:ty),+) => {
+        $(
+            $module.add_class::<$class>()?;
+        )+
+    };
+}
+
+macro_rules! add_functions {
+    ($module:ident, $($function:ident),+) => {
+        $(
+            $module.add_wrapped(wrap_pyfunction!($function))?;
+        )+
+    };
+}
+
 #[pymodule]
 fn scrapper(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
+    add_classes!(m, Attachment, AttachmentType, Email);
     Ok(())
 }
