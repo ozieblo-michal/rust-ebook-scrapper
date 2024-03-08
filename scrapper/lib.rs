@@ -1,3 +1,5 @@
+// rustimport:pyo3
+
 use pyo3::prelude::*;
 
 #[pyclass]
@@ -66,24 +68,10 @@ impl Email {
     
 }
 
-macro_rules! add_classes {
-    ($module:ident, $($class:ty),+) => {
-        $(
-            $module.add_class::<$class>()?;
-        )+
-    };
-}
-
-macro_rules! add_functions {
-    ($module:ident, $($function:ident),+) => {
-        $(
-            $module.add_wrapped(wrap_pyfunction!($function))?;
-        )+
-    };
-}
-
 #[pymodule]
-fn scrapper(_py: Python, m: &PyModule) -> PyResult<()> {
-    add_classes!(m, Attachment, AttachmentType, Email);
+fn scrapper_simple(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_class::<Attachment>()?;
+    m.add_class::<Email>()?;
+    m.add_class::<AttachmentType>()?;
     Ok(())
 }
