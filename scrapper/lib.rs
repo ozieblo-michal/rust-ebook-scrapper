@@ -1,7 +1,7 @@
-// rustimport:pyo3
-
+// Import the pyo3 library, which provides the tools to create Python bindings for Rust code.
 use pyo3::prelude::*;
 
+// Define an enum for different types of attachments, making it usable in Python with the #[pyclass] attribute.
 #[pyclass]
 #[derive(Debug, Clone, PartialEq)]
 enum AttachmentType {
@@ -11,6 +11,8 @@ enum AttachmentType {
     File,
 }
 
+// Define a Rust struct to represent an attachment, including its path and type.
+// This struct is exposed to Python, allowing its properties to be accessed and modified.
 #[pyclass(module = "scrapper", get_all, set_all)]
 #[derive(Debug, Clone, PartialEq)]
 struct Attachment {
@@ -18,6 +20,7 @@ struct Attachment {
     attachment_type: AttachmentType,
 }
 
+// Implement methods for the Attachment struct, including a constructor and a method to return a string representation.
 #[pymethods]
 impl Attachment {
     #[new]
@@ -33,6 +36,8 @@ impl Attachment {
     }
 }
 
+// Define a Rust struct to represent an email, including its subject, body, and attachments.
+// This struct is also exposed to Python for manipulation.
 #[pyclass(module = "scrapper", get_all, set_all)]
 #[derive(Debug, Clone)]
 struct Email {
@@ -41,6 +46,8 @@ struct Email {
     attachments: Vec<Attachment>,
 }
 
+// Implement methods for the Email struct, including a constructor, a method for string representation,
+// and a method to simulate sending the email.
 #[pymethods]
 impl Email {
     #[new]
@@ -65,9 +72,10 @@ impl Email {
         }
         Ok(())
     }
-    
 }
 
+// Define a Python module using Rust code, allowing the Attachment, Email, and AttachmentType classes
+// to be used in Python scripts.
 #[pymodule]
 fn scrapper_simple(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<Attachment>()?;
